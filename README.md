@@ -2,11 +2,11 @@
 
 ## Overview
 
-GoCache is a proof of concept project demonstrating a key vault store implemented in Go. This project connects to an API and a database, preloading data for efficient retrieval and management. The primary goal is to showcase the integration of a key vault with a Go application, providing secure storage and access to sensitive information.
+GoCache is a proof of concept project demonstrating a key value store implemented in Go. This project connects to an API and a database, preloading data for efficient retrieval and management. The primary goal is to showcase the integration of a key value store with a Go application, providing secure storage and access to sensitive information.
 
 ## Features
 
-- **Key Vault Store**: Securely store and manage keys using a key vault.
+- **Key Value Store**: Securely store and manage keys using a key value store.
 - **API Integration**: Connect to an API for data retrieval and manipulation.
 - **Database Integration**: Preload and manage data in a database.
 - **Efficient Data Retrieval**: Optimize data access and retrieval for performance.
@@ -66,11 +66,11 @@ go test ./...
 - **GET /data**: Retrieve preloaded data from the database.
 - **POST /data**: Add new data to the database.
 
-### Key Vault Operations
+### Key Value Store Operations
 
-- **Create Key**: Securely create and store a new key in the key vault.
-- **Retrieve Key**: Access a stored key from the key vault.
-- **Delete Key**: Remove a key from the key vault.
+- **Create Key**: Securely create and store a new key in the key value store.
+- **Retrieve Key**: Access a stored key from the key value store.
+- **Delete Key**: Remove a key from the key value store.
 
 ## Contributing
 
@@ -81,9 +81,10 @@ Contributions are welcome! Please fork the repository and create a pull request 
 This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgements
-
+- Hunter Galloway (Engineer)
 - MongoDB Go Driver
-- Redis Go Client
 - Docker
-
-For more information, visit the [official documentation](https://github.com/yourusername/gocache).
+- Go Documentation
+- PostgreSQL Documentation
+- Redis Documentation
+- Docker Documentation
