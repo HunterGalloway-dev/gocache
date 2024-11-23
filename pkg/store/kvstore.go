@@ -1,6 +1,7 @@
 package store
 
 import (
+	"errors"
 	"gocache/pkg/model"
 )
 
@@ -26,6 +27,7 @@ func (k *KVStore) InsertPerson(p model.Person) {
 	k.data = append(k.data, p)
 	k.idIndex[p.ID] = &p
 	k.nameIndex[p.Name] = append(k.nameIndex[p.Name], &p)
+	k.emailIndex[p.Email] = append(k.emailIndex[p.Email], &p)
 }
 
 func (k *KVStore) InsertPersons(p []model.Person) {
@@ -36,11 +38,73 @@ func (k *KVStore) InsertPersons(p []model.Person) {
 
 func (k *KVStore) GetPerson(id int) (model.Person, bool) {
 	p, ok := k.idIndex[id]
+	if !ok {
+		return model.Person{}, false
+	}
+
 	return *p, ok
 }
 
 func (k *KVStore) GetAllPersons() []model.Person {
 	return k.data
+}
+
+// Delete a person by ID
+func (k *KVStore) DeletePerson(id int) error {
+	person, ok := k.idIndex[id]
+	if !ok {
+		return errors.New("person not found")
+	}
+
+	var indexToDelete int
+	for i, p := range k.data {
+		if p.ID == id {
+			indexToDelete = i
+			break
+		}
+	}
+	k.data = append(k.data[:indexToDelete], k.data[indexToDelete+1:]...)
+
+	delete(k.idIndex, id)
+
+	for i, p := range k.nameIndex[person.Name] {
+		if p.ID == id {
+			k.nameIndex[person.Name] = append(k.nameIndex[person.Name][:i], k.nameIndex[person.Name][i+1:]...)
+			break
+		}
+	}
+
+	for i, p := range k.emailIndex[person.Email] {
+		if p.ID == id {
+			k.emailIndex[person.Email] = append(k.emailIndex[person.Email][:i], k.emailIndex[person.Email][i+1:]...)
+			break
+		}
+	}
+
+	return nil
+}
+
+// Update a person by ID
+func (k *KVStore) UpdatePerson(id int, updatedPerson model.Person) error {
+	existingPerson, ok := k.idIndex[id]
+	if !ok {
+		return errors.New("person not found")
+	}
+
+	for i, p := range k.data {
+		if p.ID == id {
+			k.data[i] = updatedPerson
+			break
+		}
+	}
+
+	delete(k.nameIndex, existingPerson.Name)
+	delete(k.emailIndex, existingPerson.Email)
+
+	// Insert the updated person
+	k.InsertPerson(updatedPerson)
+
+	return nil
 }
 
 // Query KV store
@@ -50,18 +114,26 @@ func (k *KVStore) Query(email, name string, age []int) []model.Person {
 		return k.GetAllPersons()
 	}
 
-	set := k.QuerySetBuilder(email, name, age)
+	set := k.querySetBuilder(email, name, age)
 	return buildSlice(set)
 }
 
 // for singular fields apply intersection
-func (k *KVStore) QuerySetBuilder(email string, name string, age []int) map[*model.Person]bool {
+func (k *KVStore) querySetBuilder(email string, name string, age []int) map[*model.Person]bool {
 	// build intersection sets first
 	emailSet := buildSet(email, k.emailIndex)
 	nameSet := buildSet(name, k.nameIndex)
 
 	// intersection of email and name
-	intersection := setIntersection(emailSet, nameSet)
+	intersection := make(map[*model.Person]bool, len(k.data))
+
+	if email == "" && name == "" {
+		for _, p := range k.data {
+			intersection[&p] = true
+		}
+	} else {
+		setIntersection(emailSet, nameSet)
+	}
 
 	result := filterByAge(intersection, age)
 	return result
