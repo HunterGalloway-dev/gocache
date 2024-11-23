@@ -15,7 +15,7 @@ type KVStore struct {
 	emailIndex map[string][]*model.Person
 }
 
-func NewKVStore() *KVStore {
+func NewKVStore() PersonStore {
 	return &KVStore{
 		data:       make([]model.Person, 0),
 		idIndex:    make(map[int]*model.Person),

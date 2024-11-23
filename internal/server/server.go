@@ -1,7 +1,9 @@
 package server
 
 import (
-	"gocache/internal/database"
+	"gocache/internal/controller"
+	"gocache/internal/datasource"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -13,15 +15,23 @@ import (
 type Server struct {
 	port int
 
-	db database.Service
+	pc controller.PersonController
 }
 
 func NewServer() *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
 
+	db := datasource.NewMongo()
+
+	// Create controllers
+	pc, err := controller.NewPersonController(db)
+	if err != nil {
+		log.Fatalf("Error creating person controller: %v", err)
+	}
+
 	NewServer := &Server{
 		port: port,
-		db:   database.New(),
+		pc:   pc,
 	}
 
 	server := &http.Server{

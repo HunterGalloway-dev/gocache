@@ -22,3 +22,5 @@ Schema-less: MongoDB is a NoSQL database, which means it doesn't require a fixed
 Performance: MongoDB is optimized for read-heavy operations and can handle large volumes of data efficiently.
 Scalability: MongoDB is designed to scale out horizontally, making it easier to handle large datasets.
 However, if you need strong consistency and ACID transactions, PostgreSQL might be more suitable. But for your use case of mass retrieval of a single type of data without relations, MongoDB is likely the better option.
+
+Added CESE logging pattern

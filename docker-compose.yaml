@@ -1,14 +1,13 @@
 services:
-  mongo_bp:
+  mongo_db:
     image: mongo:latest
     restart: unless-stopped
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${BLUEPRINT_DB_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${BLUEPRINT_DB_ROOT_PASSWORD}
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${DB_NAME}
     ports:
-      - "${BLUEPRINT_DB_PORT}:27017"
+      - "${DB_PORT}:27017"
     volumes:
-      - mongo_volume_bp:/data/db
-
-volumes:
-  mongo_volume_bp:
+      #- mongo_volume_db:/data/db
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
