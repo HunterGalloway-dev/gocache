@@ -1,109 +1,89 @@
-# GoCache
+# GoCache Proof of Concept
 
-GoCache is a proof-of-concept solution for an in-memory key-value store in Go. It provides basic caching functionality with support for various cache eviction policies.
+## Overview
+
+GoCache is a proof of concept project demonstrating a key vault store implemented in Go. This project connects to an API and a database, preloading data for efficient retrieval and management. The primary goal is to showcase the integration of a key vault with a Go application, providing secure storage and access to sensitive information.
 
 ## Features
 
-- In-memory key-value store
-- Multiple eviction policies (LRU, LFU, FIFO)
-- Thread-safe operations
-- Easy to use API
+- **Key Vault Store**: Securely store and manage keys using a key vault.
+- **API Integration**: Connect to an API for data retrieval and manipulation.
+- **Database Integration**: Preload and manage data in a database.
+- **Efficient Data Retrieval**: Optimize data access and retrieval for performance.
 
 ## Getting Started
 
+### Prerequisites
+
+- Go 1.16 or higher
+- MongoDB or PostgreSQL (depending on your preference)
+- Redis (for caching, optional)
+
 ### Installation
 
-To install GoCache, use `go get`:
+1. Clone the repository:
+  ```sh
+  git clone https://github.com/yourusername/gocache.git
+  cd gocache
+  ```
 
+2. Install dependencies:
+  ```sh
+  go mod tidy
+  ```
+
+3. Set up your environment variables:
+  ```sh
+  cp .env.example .env
+  ```
+
+4. Update the `.env` file with your database and API credentials.
+
+### Running the Application
+
+1. Start the database and cache services (if using Docker):
+  ```sh
+  docker-compose up -d
+  ```
+
+2. Run the application:
+  ```sh
+  go run main.go
+  ```
+
+### Testing
+
+Run the unit tests to ensure everything is working correctly:
 ```sh
-go get github.com/hunter/gocache
-```
-
-After installing, run `go mod tidy` to ensure all dependencies are properly managed:
-
-```sh
-go mod tidy
-```
-
-### Starting and Testing the Application
-
-Use the provided Makefile as an entry point to start and test the application. To start the application, run:
-
-```sh
-make start
-```
-
-To run tests, use:
-
-```sh
-make test
+go test ./...
 ```
 
 ## Usage
 
-Here is a basic example of how to use GoCache:
+### API Endpoints
 
-```go
-package main
+- **GET /health**: Check the health of the server and database.
+- **GET /data**: Retrieve preloaded data from the database.
+- **POST /data**: Add new data to the database.
 
-import (
-    "fmt"
-    "github.com/yourusername/gocache"
-)
+### Key Vault Operations
 
-func main() {
-    cache := gocache.NewCache(gocache.LRU, 100) // LRU policy with a capacity of 100 items
-
-    cache.Set("key1", "value1")
-    value, found := cache.Get("key1")
-    if found {
-        fmt.Println("Found value:", value)
-    } else {
-        fmt.Println("Value not found")
-    }
-}
-```
+- **Create Key**: Securely create and store a new key in the key vault.
+- **Retrieve Key**: Access a stored key from the key vault.
+- **Delete Key**: Remove a key from the key vault.
 
 ## Contributing
 
-Contributions are welcome! Please open an issue or submit a pull request.
+Contributions are welcome! Please fork the repository and create a pull request with your changes.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
 
-## Contact
+## Acknowledgements
 
-For any questions or suggestions, feel free to open an issue or contact the repository owner.
+- MongoDB Go Driver
+- Redis Go Client
+- Docker
 
-##
- QGoCache also provides a query option to retrieve multiple values based on a custom filter function. This allows for more advanced querying capabilities.
-ue
-ryHere is an example of how to use the query option:
- O
-pt```go
-iopackage main
-n
-
-im      "github.com/yourusername/gocache"
-  "f)
-mt"
-
-pofu  
-  cach    cache.Set("key1", "value1")
-e := g    cache.Set("key2", "value2")
-ocache    cache.Set("key3", "value3")
-.NewCa
-che(go    results := cache.Query(func(key, value interface{}) bool {
-cache.        return key.(string) > "key1"
-LRU, 1    })
-00)
-n
-c m           fmt.Println("Found value:", result)
- for _    }
-, resu}
-lt := ```
-range results {
-ain() {
-rt (
-
+For more information, visit the [official documentation](https://github.com/yourusername/gocache).
