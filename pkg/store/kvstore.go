@@ -2,6 +2,7 @@ package store
 
 import (
 	"errors"
+	"fmt"
 	"gocache/pkg/model"
 )
 
@@ -124,6 +125,8 @@ func (k *KVStore) querySetBuilder(email string, name string, age []int) map[*mod
 	emailSet := buildSet(email, k.emailIndex)
 	nameSet := buildSet(name, k.nameIndex)
 
+	fmt.Println(emailSet, nameSet)
+
 	// intersection of email and name
 	intersection := make(map[*model.Person]bool, len(k.data))
 
@@ -132,11 +135,39 @@ func (k *KVStore) querySetBuilder(email string, name string, age []int) map[*mod
 			intersection[&p] = true
 		}
 	} else {
-		setIntersection(emailSet, nameSet)
+		intersection = setIntersection(emailSet, nameSet)
 	}
 
 	result := filterByAge(intersection, age)
 	return result
+}
+
+func (k *KVStore) String() string {
+	ret := "KVStore\n"
+	for _, p := range k.data {
+		ret += fmt.Sprintf("%+v\n", p)
+	}
+	for id, p := range k.idIndex {
+		ret += fmt.Sprintf("ID: %d, Person: %+v\n", id, *p)
+	}
+
+	ret += "\nName Index\n"
+	for name, persons := range k.nameIndex {
+		ret += fmt.Sprintf("Name: %s\n", name)
+		for _, p := range persons {
+			ret += fmt.Sprintf("\tPerson: %+v\n", *p)
+		}
+	}
+
+	ret += "\nEmail Index\n"
+	for email, persons := range k.emailIndex {
+		ret += fmt.Sprintf("Email: %s\n", email)
+		for _, p := range persons {
+			ret += fmt.Sprintf("\tPerson: %+v\n", *p)
+		}
+	}
+
+	return ret
 }
 
 func filterByAge(set map[*model.Person]bool, age []int) map[*model.Person]bool {
