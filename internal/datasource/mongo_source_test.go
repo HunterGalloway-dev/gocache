@@ -3,10 +3,12 @@ package datasource
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/mongodb"
 	"github.com/testcontainers/testcontainers-go/wait"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func mustStartMongoContainer() (func(context.Context) error, error) {
@@ -52,5 +54,43 @@ func TestHealth(t *testing.T) {
 	health := mongo.Health()
 	if health["message"] != "It's healthy" {
 		t.Fatal("Health() returned unhealthy")
+	}
+}
+func TestGetAllPersons(t *testing.T) {
+	terminate, err := mustStartMongoContainer()
+	if err != nil {
+		t.Fatalf("Failed to start MongoDB container: %v", err)
+	}
+	defer terminate(context.Background())
+
+	mongo := NewMongo()
+
+	// Insert test data
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	collection := mongo.(*mongoSource).db.Database("gocache").Collection("person")
+	_, err = collection.InsertMany(ctx, []interface{}{
+		bson.D{{Key: "name", Value: "John Doe"}, {Key: "age", Value: 30}},
+		bson.D{{Key: "name", Value: "Jane Doe"}, {Key: "age", Value: 25}},
+	})
+	if err != nil {
+		t.Fatalf("Failed to insert test data: %v", err)
+	}
+
+	// Test GetAllPersons
+	persons, err := mongo.GetAllPersons()
+	if err != nil {
+		t.Fatalf("GetAllPersons() error: %v", err)
+	}
+
+	if len(persons) != 2 {
+		t.Fatalf("Expected 2 persons, got %d", len(persons))
+	}
+
+	expectedNames := []string{"John Doe", "Jane Doe"}
+	for i, person := range persons {
+		if person.Name != expectedNames[i] {
+			t.Errorf("Expected name %s, got %s", expectedNames[i], person.Name)
+		}
 	}
 }
