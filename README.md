@@ -58,6 +58,8 @@ Run the unit tests to ensure everything is working correctly:
 go test ./...
 ```
 
+All of these commands are simplified in the Makefile for ease of access
+
 ## Usage
 
 ### API Endpoints
