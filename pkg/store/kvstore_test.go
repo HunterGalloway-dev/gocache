@@ -1,7 +1,6 @@
 package store
 
 import (
-	"fmt"
 	"gocache/pkg/model"
 	"testing"
 )
@@ -234,8 +233,6 @@ func TestQueryWithNameAndAge(t *testing.T) {
 	}
 
 	store.InsertPersons(persons)
-
-	fmt.Println(store)
 
 	result := store.Query("", "John Doe", []int{30})
 	if len(result) != 1 || result[0].Name != "John Doe" || result[0].Age != 30 {

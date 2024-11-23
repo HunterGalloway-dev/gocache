@@ -125,8 +125,6 @@ func (k *KVStore) querySetBuilder(email string, name string, age []int) map[*mod
 	emailSet := buildSet(email, k.emailIndex)
 	nameSet := buildSet(name, k.nameIndex)
 
-	fmt.Println(emailSet, nameSet)
-
 	// intersection of email and name
 	intersection := make(map[*model.Person]bool, len(k.data))
 
