@@ -37,7 +37,7 @@ const names = [
   "Nina Owens", "Oscar Perry", "Paula Quinn", "Quincy Roberts", "Rita Scott"
 ];
 
-const MAX_PERSONS = 10;
+const MAX_PERSONS = 100_000;
 const persons = [];
 
 for (let i = 1; i <= MAX_PERSONS; i++) {
