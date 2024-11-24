@@ -1,8 +1,0 @@
-change http server timeouts to env
-
-need to containerize go app - improve containerization of the go application
-
-implement a store utilizing a redis instance
-
-investigate kafka event drive archetecture for modifying and insert persons
-- Kafka topic, if id exists it updates and if it doesn't it inserts

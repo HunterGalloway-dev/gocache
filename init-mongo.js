@@ -1,13 +1,13 @@
-const MAX_PERSONS = 100_000;
+const MAX_PERSONS = process.env.MOCK_PERSONS ? parseInt(process.env.MOCK_PERSONS, 10) : 100;
+const DB_NAME = process.env.MONGO_INITDB_DATABASE;
+const COLLECTION_NAME = process.env.COLLECTION_NAME;
+
 print("Start of init-mongo.js script");
-print("Create 'persons' collection with fake data MAX_PERSONS: " + MAX_PERSONS);
+print(`Creating '${COLLECTION_NAME}' collection in database '${DB_NAME}' with ${MAX_PERSONS} fake persons.`);
 
-print(process.env.MONGO_INITDB_DATABASE);
-print(process.env.COLLECTION_NAME)
+db = db.getSiblingDB(DB_NAME);
 
-db = db.getSiblingDB(process.env.MONGO_INITDB_DATABASE);
-
-db.createCollection('person', {
+db.createCollection(COLLECTION_NAME, {
   validator: {
     $jsonSchema: {
       bsonType: 'object',
@@ -51,6 +51,7 @@ for (let i = 1; i <= MAX_PERSONS; i++) {
   });
 }
 
-db.person.insertMany(persons);
+db[COLLECTION_NAME].insertMany(persons);
 
+print(`Inserted ${persons.length} persons into the '${COLLECTION_NAME}' collection.`);
 print("End of init-mongo.js script");
