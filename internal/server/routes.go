@@ -1,6 +1,7 @@
 package server
 
 import (
+	"gocache/pkg/model"
 	"log"
 	"net/http"
 	"strconv"
@@ -14,14 +15,16 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:5173"}, // Add your frontend URL
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
+		AllowMethods:     []string{"GET", "POST"},
 		AllowHeaders:     []string{"Accept", "Authorization", "Content-Type"},
 		AllowCredentials: true, // Enable cookies/auth
 	}))
 
 	r.GET("/health", s.healthHandler)
 	r.GET("/persons", s.getPersonsHandler)
-	r.GET("/query", s.queryPersonsHandler)
+	r.GET("/persons/filter", s.queryPersonsHandler)
+
+	r.POST("/persons/update", s.updatePersonHandler)
 
 	return r
 }
@@ -74,6 +77,27 @@ func (s *Server) queryPersonsHandler(c *gin.Context) {
 	log.Printf("ROUTE: queryPersonsHandler success: found %v persons", len(persons))
 
 	c.JSON(http.StatusOK, persons)
+}
+
+func (s *Server) updatePersonHandler(c *gin.Context) {
+	log.Printf("ROUTE: updatePersonHandler called: %v %v", c.Request.Method, c.Request.URL.Path)
+	var person model.Person
+	if err := c.BindJSON(&person); err != nil {
+		log.Printf("ROUTE: updatePersonHandler error binding JSON: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err := s.pc.UpdatePerson(person)
+	if err != nil {
+		log.Printf("ROUTE: updatePersonHandler error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	log.Printf("ROUTE: updatePersonHandler success")
+
+	c.JSON(http.StatusOK, gin.H{"message": "Person updated successfully"})
 }
 
 // Given a slice of strings, convert them to a slice of integers, if conversion fails return an error

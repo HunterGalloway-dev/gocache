@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"gocache/pkg/model"
-	"log"
 )
 
 // KVStore is a simple in-memory key-value store
@@ -87,7 +86,8 @@ func (k *KVStore) DeletePerson(id int) error {
 }
 
 // Update a person by ID
-func (k *KVStore) UpdatePerson(id int, updatedPerson model.Person) error {
+func (k *KVStore) UpdatePerson(updatedPerson model.Person) error {
+	id := updatedPerson.ID
 	existingPerson, ok := k.idIndex[id]
 	if !ok {
 		return errors.New("person not found")
@@ -111,7 +111,6 @@ func (k *KVStore) UpdatePerson(id int, updatedPerson model.Person) error {
 
 // Query KV store
 func (k *KVStore) Query(name, email string, age []int) []model.Person {
-	log.Printf("KVStore: Query called with name=%v, email=%v, ages=%v", name, email, age)
 	// BASE CASE: If all fields are empty, return all persons
 	if email == "" && name == "" && len(age) == 0 {
 		return k.GetAllPersons()

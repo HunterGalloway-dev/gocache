@@ -2,6 +2,7 @@ package datasource
 
 import (
 	"context"
+	"gocache/pkg/model"
 	"testing"
 	"time"
 
@@ -92,5 +93,50 @@ func TestGetAllPersons(t *testing.T) {
 		if person.Name != expectedNames[i] {
 			t.Errorf("Expected name %s, got %s", expectedNames[i], person.Name)
 		}
+	}
+}
+
+func TestUpdatePerson(t *testing.T) {
+	terminate, err := mustStartMongoContainer()
+	if err != nil {
+		t.Fatalf("Failed to start MongoDB container: %v", err)
+	}
+	defer terminate(context.Background())
+
+	mongo := NewMongo()
+
+	// Insert test data
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	collection := mongo.(*mongoSource).db.Database("gocache").Collection("person")
+	_, err = collection.InsertOne(ctx, bson.D{{Key: "id", Value: 1}, {Key: "name", Value: "John Doe"}, {Key: "age", Value: 30}, {Key: "email", Value: "john.doe@example.com"}})
+	if err != nil {
+		t.Fatalf("Failed to insert test data: %v", err)
+	}
+
+	// Update the person
+	person := model.Person{ID: 1, Name: "John Smith", Age: 35, Email: "john.smith@example.com"}
+	err = mongo.UpdatePerson(person)
+	if err != nil {
+		t.Fatalf("UpdatePerson() error: %v", err)
+	}
+
+	// Verify the update
+	var updatedPerson model.Person
+	err = collection.FindOne(ctx, bson.D{{Key: "id", Value: person.ID}}).Decode(&updatedPerson)
+	if err != nil {
+		t.Fatalf("Failed to find updated person: %v", err)
+	}
+
+	if updatedPerson.Name != person.Name {
+		t.Errorf("Expected name %s, got %s", person.Name, updatedPerson.Name)
+	}
+
+	if updatedPerson.Age != person.Age {
+		t.Errorf("Expected age %d, got %d", person.Age, updatedPerson.Age)
+	}
+
+	if updatedPerson.Email != person.Email {
+		t.Errorf("Expected email %s, got %s", person.Email, updatedPerson.Email)
 	}
 }

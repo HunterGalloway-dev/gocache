@@ -37,10 +37,13 @@ const names = [
   "Nina Owens", "Oscar Perry", "Paula Quinn", "Quincy Roberts", "Rita Scott"
 ];
 
+const MAX_PERSONS = 10;
 const persons = [];
-for (let i = 1; i <= 10; i++) {
+
+for (let i = 1; i <= MAX_PERSONS; i++) {
   const name = names[Math.floor(Math.random() * names.length)];
   persons.push({
+    id: i,
     name: name,
     age: Math.floor(Math.random() * 100),
     email: `person${i}@example.com`

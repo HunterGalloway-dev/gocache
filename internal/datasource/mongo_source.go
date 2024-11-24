@@ -39,11 +39,11 @@ func NewMongo() DataSource {
 	}
 }
 
-func (s *mongoSource) Health() map[string]string {
+func (m *mongoSource) Health() map[string]string {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err := s.db.Ping(ctx, nil)
+	err := m.db.Ping(ctx, nil)
 	if err != nil {
 		log.Fatalf("db down: %v", err)
 	}
@@ -54,12 +54,12 @@ func (s *mongoSource) Health() map[string]string {
 }
 
 // Person methods
-func (s *mongoSource) GetAllPersons() ([]model.Person, error) {
+func (m *mongoSource) GetAllPersons() ([]model.Person, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	log.Printf("DATASOURCE: GetAllPersons called")
 
-	collection := s.db.Database("gocache").Collection("person")
+	collection := m.db.Database("gocache").Collection("person")
 
 	cursor, err := collection.Find(ctx, bson.D{})
 	if err != nil {
@@ -76,4 +76,26 @@ func (s *mongoSource) GetAllPersons() ([]model.Person, error) {
 	log.Printf("DATASOURCE: GetAllPersons success: found %v persons", len(persons))
 
 	return persons, nil
+}
+
+func (m *mongoSource) UpdatePerson(person model.Person) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	log.Printf("DATASOURCE: UpdatePerson called")
+
+	// DRY DRY DRY DRY
+	collection := m.db.Database("gocache").Collection("person")
+
+	filter := bson.D{{Key: "id", Value: person.ID}}
+	update := bson.D{{Key: "$set", Value: person}}
+
+	_, err := collection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		log.Printf("DATASOURCE: UpdatePerson error updating person: %v", err)
+		return err
+	}
+
+	log.Printf("DATASOURCE: UpdatePerson success: updated person with ID %v", person.ID)
+
+	return nil
 }

@@ -12,6 +12,7 @@ type PersonController interface {
 	Health() map[string]string
 	GetAllPersons() ([]model.Person, error)
 	Query(name, email string, ages []int) ([]model.Person, error)
+	UpdatePerson(p model.Person) error
 }
 
 // personController is the concrete implementation of PersonController
@@ -59,4 +60,24 @@ func (c *personController) GetAllPersons() ([]model.Person, error) {
 	log.Printf("CONTROLLER: GetAllPersons success: found %v persons", len(p))
 
 	return p, nil
+}
+
+// UpdatePerson updates a person in the data source
+func (c *personController) UpdatePerson(p model.Person) error {
+	log.Printf("CONTROLLER: UpdatePerson called with person=%v", p)
+	err := c.db.UpdatePerson(p)
+	if err != nil {
+		log.Printf("CONTROLLER: Error updating person: %v", err)
+		return err
+	}
+
+	// Update the key-value store
+	err = c.kv.UpdatePerson(p)
+	if err != nil {
+		log.Printf("CONTROLLER: Error updating key-value store: %v", err)
+		return err
+	}
+
+	log.Printf("CONTROLLER: UpdatePerson success")
+	return nil
 }

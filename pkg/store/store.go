@@ -10,7 +10,7 @@ type PersonStore interface {
 	GetPerson(id int) (model.Person, bool)
 	GetAllPersons() []model.Person
 	DeletePerson(id int) error
-	UpdatePerson(id int, p model.Person) error
+	UpdatePerson(p model.Person) error
 	Query(name, email string, ages []int) []model.Person
 	String() string
 }

@@ -93,7 +93,7 @@ func TestUpdatePerson(t *testing.T) {
 	store.InsertPerson(p)
 
 	updatedPerson := model.Person{ID: 1, Name: "John Doe", Email: "john.doe@newdomain.com", Age: 31}
-	if err := store.UpdatePerson(1, updatedPerson); err != nil {
+	if err := store.UpdatePerson(updatedPerson); err != nil {
 		t.Fatalf("unexpected error updating person: %v", err)
 	}
 
@@ -106,7 +106,7 @@ func TestUpdatePerson(t *testing.T) {
 func TestUpdatePersonNotFound(t *testing.T) {
 	store := NewKVStore()
 
-	err := store.UpdatePerson(999, model.Person{ID: 999, Name: "Non-existent", Email: "nonexistent@example.com"})
+	err := store.UpdatePerson(model.Person{ID: 999, Name: "Non-existent", Email: "nonexistent@example.com"})
 	if err == nil || err.Error() != "person not found" {
 		t.Errorf("expected 'person not found' error, got %v", err)
 	}
