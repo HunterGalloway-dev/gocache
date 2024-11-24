@@ -15,7 +15,8 @@ import (
 )
 
 type mongoSource struct {
-	db *mongo.Client
+	db         *mongo.Client
+	personColl *mongo.Collection
 }
 
 var (
@@ -23,6 +24,8 @@ var (
 	password = os.Getenv("DB_ROOT_PASSWORD")
 	host     = os.Getenv("DB_HOST")
 	port     = os.Getenv("DB_PORT")
+	name     = os.Getenv("DB_NAME")
+	coll     = os.Getenv("DB_COLLECTION")
 )
 
 func NewMongo() (DataSource, error) {
@@ -30,13 +33,16 @@ func NewMongo() (DataSource, error) {
 	uri := fmt.Sprintf("mongodb://%s:%s@%s:%s/?authSource=admin", username, password, host, port)
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(uri))
 
+	personColl := client.Database(name).Collection(coll)
+
 	if err != nil {
 		logger.Logger.Fatalf("Error connecting to MongoDB: %v", err)
 		return nil, err
 
 	}
 	return &mongoSource{
-		db: client,
+		db:         client,
+		personColl: personColl,
 	}, nil
 }
 
@@ -60,9 +66,7 @@ func (m *mongoSource) GetAllPersons() ([]model.Person, error) {
 	defer cancel()
 	logger.Logger.Info("DATASOURCE: GetAllPersons called")
 
-	collection := m.db.Database("gocache").Collection("person")
-
-	cursor, err := collection.Find(ctx, bson.D{})
+	cursor, err := m.personColl.Find(ctx, bson.D{})
 	if err != nil {
 		logger.Logger.Errorf("DATASOURCE: GetAllPersons error getting collection: %v", err)
 		return nil, err
@@ -84,13 +88,10 @@ func (m *mongoSource) UpdatePerson(person model.Person) error {
 	defer cancel()
 	logger.Logger.Infof("DATASOURCE: UpdatePerson called")
 
-	// DRY DRY DRY DRY
-	collection := m.db.Database("gocache").Collection("person")
-
 	filter := bson.D{{Key: "id", Value: person.ID}}
 	update := bson.D{{Key: "$set", Value: person}}
 
-	_, err := collection.UpdateOne(ctx, filter, update)
+	_, err := m.personColl.UpdateOne(ctx, filter, update)
 	if err != nil {
 		logger.Logger.Errorf("DATASOURCE: UpdatePerson error updating person: %v", err)
 		return err
