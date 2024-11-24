@@ -45,7 +45,7 @@ func TestQuery(t *testing.T) {
 
 	store.InsertPersons(persons)
 
-	result := store.Query("jane@example.com", "", nil)
+	result := store.Query("", "jane@example.com", nil)
 	if len(result) != 1 {
 		t.Errorf("expected to find Jane Smith, got %+v", result)
 	}
@@ -152,7 +152,7 @@ func TestQueryWithName(t *testing.T) {
 
 	store.InsertPersons(persons)
 
-	result := store.Query("", "John Doe", nil)
+	result := store.Query("John Doe", "", nil)
 	if len(result) != 2 {
 		t.Errorf("expected 2 persons with name 'John Doe', got %d", len(result))
 	}
@@ -175,7 +175,7 @@ func TestQueryWithEmail(t *testing.T) {
 
 	store.InsertPersons(persons)
 
-	result := store.Query("john.doe@example.com", "", nil)
+	result := store.Query("", "john.doe@example.com", nil)
 	if len(result) != 1 || result[0].Email != "john.doe@example.com" {
 		t.Errorf("expected 1 person with email 'john.doe@example.com', got %+v", result)
 	}
@@ -216,7 +216,7 @@ func TestQueryWithEmailAndAge(t *testing.T) {
 
 	store.InsertPersons(persons)
 
-	result := store.Query("john@example.com", "", []int{30})
+	result := store.Query("", "john@example.com", []int{30})
 	if len(result) != 1 || result[0].Email != "john@example.com" {
 		t.Errorf("expected 1 person with email 'john@example.com' and age 30, got %+v", result)
 	}
@@ -234,7 +234,7 @@ func TestQueryWithNameAndAge(t *testing.T) {
 
 	store.InsertPersons(persons)
 
-	result := store.Query("", "John Doe", []int{30})
+	result := store.Query("John Doe", "", []int{30})
 	if len(result) != 1 || result[0].Name != "John Doe" || result[0].Age != 30 {
 		t.Errorf("expected 1 person with name 'John Doe' and age 30, got %+v", result)
 	}
@@ -252,7 +252,7 @@ func TestQueryWithAllFields(t *testing.T) {
 
 	store.InsertPersons(persons)
 
-	result := store.Query("john@example.com", "John Doe", []int{30})
+	result := store.Query("John Doe", "john@example.com", []int{30})
 	if len(result) != 1 || result[0].Email != "john@example.com" || result[0].Name != "John Doe" {
 		t.Errorf("expected 1 person with name 'John Doe', email 'john@example.com', and age 30, got %+v", result)
 	}
@@ -268,7 +268,7 @@ func TestQueryWithNoResults(t *testing.T) {
 
 	store.InsertPersons(persons)
 
-	result := store.Query("nonexistent@example.com", "Non Existent", []int{99})
+	result := store.Query("Non Existent", "nonexistent@example.com", []int{99})
 	if len(result) != 0 {
 		t.Errorf("expected no results, got %+v", result)
 	}

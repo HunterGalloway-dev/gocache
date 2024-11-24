@@ -54,7 +54,9 @@ func (s *Server) queryPersonsHandler(c *gin.Context) {
 
 	name := c.Query("name")
 	email := c.Query("email")
-	ages, err := stringSliceToIntSlice(c.QueryArray("ages"))
+	ageStr := c.QueryArray("ages")
+	log.Printf("ROUTE: queryPersonsHandler called: %v %v name=%v, email=%v, ages=%v", c.Request.Method, c.Request.URL.Path, name, email, ageStr)
+	ages, err := stringSliceToIntSlice(ageStr)
 
 	if err != nil {
 		log.Printf("ROUTE: queryPersonsHandler error converting string slice to int slice: %v", err)
@@ -74,7 +76,9 @@ func (s *Server) queryPersonsHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, persons)
 }
 
+// Given a slice of strings, convert them to a slice of integers, if conversion fails return an error
 func stringSliceToIntSlice(strSlice []string) ([]int, error) {
+	log.Printf("ROUTE: Converting string slice to int slice: %v", strSlice)
 	intSlice := make([]int, 0, len(strSlice))
 
 	if len(strSlice) == 0 {
@@ -85,12 +89,12 @@ func stringSliceToIntSlice(strSlice []string) ([]int, error) {
 		return intSlice, nil
 	}
 
-	for i, str := range strSlice {
+	for _, str := range strSlice {
 		intVal, err := strconv.Atoi(str)
 		if err != nil {
-			return nil, err
+			return intSlice, err
 		}
-		intSlice[i] = intVal
+		intSlice = append(intSlice, intVal)
 	}
 	return intSlice, nil
 }

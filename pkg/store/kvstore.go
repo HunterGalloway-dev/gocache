@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"gocache/pkg/model"
+	"log"
 )
 
 // KVStore is a simple in-memory key-value store
@@ -109,21 +110,22 @@ func (k *KVStore) UpdatePerson(id int, updatedPerson model.Person) error {
 }
 
 // Query KV store
-func (k *KVStore) Query(email, name string, age []int) []model.Person {
+func (k *KVStore) Query(name, email string, age []int) []model.Person {
+	log.Printf("KVStore: Query called with name=%v, email=%v, ages=%v", name, email, age)
 	// BASE CASE: If all fields are empty, return all persons
 	if email == "" && name == "" && len(age) == 0 {
 		return k.GetAllPersons()
 	}
 
-	set := k.querySetBuilder(email, name, age)
+	set := k.querySetBuilder(name, email, age)
 	return buildSlice(set)
 }
 
 // for singular fields apply intersection
-func (k *KVStore) querySetBuilder(email string, name string, age []int) map[*model.Person]bool {
+func (k *KVStore) querySetBuilder(name, email string, age []int) map[*model.Person]bool {
 	// build intersection sets first
-	emailSet := buildSet(email, k.emailIndex)
 	nameSet := buildSet(name, k.nameIndex)
+	emailSet := buildSet(email, k.emailIndex)
 
 	// intersection of email and name
 	intersection := make(map[*model.Person]bool, len(k.data))

@@ -38,7 +38,7 @@ const names = [
 ];
 
 const persons = [];
-for (let i = 1; i <= 300; i++) {
+for (let i = 1; i <= 10; i++) {
   const name = names[Math.floor(Math.random() * names.length)];
   persons.push({
     name: name,

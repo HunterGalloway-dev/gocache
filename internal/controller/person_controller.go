@@ -30,6 +30,7 @@ func NewPersonController(db datasource.DataSource) (PersonController, error) {
 	}
 
 	// Setup key value store with persons from the data source
+	log.Printf("CONTROLLER: Inserting persons into key-value store for caching [%v persons]", len(p))
 	kv.InsertPersons(p)
 
 	return &personController{
