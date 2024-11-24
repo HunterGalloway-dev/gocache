@@ -1,9 +1,9 @@
 package server
 
 import (
+	"fmt"
 	"gocache/internal/controller"
 	"gocache/internal/datasource"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -18,18 +18,23 @@ type Server struct {
 	pc controller.PersonController
 }
 
-func NewServer() *http.Server {
+func NewServer() (*http.Server, error) {
 	port, err := strconv.Atoi(os.Getenv("PORT"))
 	if err != nil {
-		log.Fatalf("Error converting PORT to integer: %v", err)
+
+		return nil, fmt.Errorf("error converting PORT to integer: %v", err)
 	}
 
-	db := datasource.NewMongo()
+	db, err := datasource.NewMongo()
+
+	if err != nil {
+		return nil, fmt.Errorf("error creating mongo data source: %v", err)
+	}
 
 	// Create controllers
 	pc, err := controller.NewPersonController(db)
 	if err != nil {
-		log.Fatalf("Error creating person controller: %v", err)
+		return nil, fmt.Errorf("error creating person controller: %v", err)
 	}
 
 	NewServer := &Server{
@@ -45,5 +50,5 @@ func NewServer() *http.Server {
 		WriteTimeout: 10 * time.Second,
 	}
 
-	return server
+	return server, nil
 }

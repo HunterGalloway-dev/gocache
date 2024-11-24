@@ -3,8 +3,8 @@ package datasource
 import (
 	"context"
 	"fmt"
+	"gocache/internal/logger"
 	"gocache/pkg/model"
-	"log"
 	"os"
 	"time"
 
@@ -25,18 +25,19 @@ var (
 	port     = os.Getenv("DB_PORT")
 )
 
-func NewMongo() DataSource {
+func NewMongo() (DataSource, error) {
 	fmt.Println(username, password, host, port)
 	uri := fmt.Sprintf("mongodb://%s:%s@%s:%s/?authSource=admin", username, password, host, port)
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(uri))
 
 	if err != nil {
-		log.Fatal(err)
+		logger.Logger.Fatalf("Error connecting to MongoDB: %v", err)
+		return nil, err
 
 	}
 	return &mongoSource{
 		db: client,
-	}
+	}, nil
 }
 
 func (m *mongoSource) Health() map[string]string {
@@ -45,7 +46,7 @@ func (m *mongoSource) Health() map[string]string {
 
 	err := m.db.Ping(ctx, nil)
 	if err != nil {
-		log.Fatalf("db down: %v", err)
+		logger.Logger.Errorf("db down: %v", err)
 	}
 
 	return map[string]string{
@@ -57,23 +58,23 @@ func (m *mongoSource) Health() map[string]string {
 func (m *mongoSource) GetAllPersons() ([]model.Person, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	log.Printf("DATASOURCE: GetAllPersons called")
+	logger.Logger.Info("DATASOURCE: GetAllPersons called")
 
 	collection := m.db.Database("gocache").Collection("person")
 
 	cursor, err := collection.Find(ctx, bson.D{})
 	if err != nil {
-		log.Printf("DATASOURCE: GetAllPersons error getting collection: %v", err)
+		logger.Logger.Errorf("DATASOURCE: GetAllPersons error getting collection: %v", err)
 		return nil, err
 	}
 
 	var persons []model.Person
 	if err = cursor.All(ctx, &persons); err != nil {
-		log.Printf("DATASOURCE: GetAllPersons error finding all on collection: %v", err)
+		logger.Logger.Errorf("DATASOURCE: GetAllPersons error finding all on collection: %v", err)
 		return nil, err
 	}
 
-	log.Printf("DATASOURCE: GetAllPersons success: found %v persons", len(persons))
+	logger.Logger.Infof("DATASOURCE: GetAllPersons success: found %v persons", len(persons))
 
 	return persons, nil
 }
@@ -81,7 +82,7 @@ func (m *mongoSource) GetAllPersons() ([]model.Person, error) {
 func (m *mongoSource) UpdatePerson(person model.Person) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	log.Printf("DATASOURCE: UpdatePerson called")
+	logger.Logger.Infof("DATASOURCE: UpdatePerson called")
 
 	// DRY DRY DRY DRY
 	collection := m.db.Database("gocache").Collection("person")
@@ -91,11 +92,11 @@ func (m *mongoSource) UpdatePerson(person model.Person) error {
 
 	_, err := collection.UpdateOne(ctx, filter, update)
 	if err != nil {
-		log.Printf("DATASOURCE: UpdatePerson error updating person: %v", err)
+		logger.Logger.Errorf("DATASOURCE: UpdatePerson error updating person: %v", err)
 		return err
 	}
 
-	log.Printf("DATASOURCE: UpdatePerson success: updated person with ID %v", person.ID)
+	logger.Logger.Infof("DATASOURCE: UpdatePerson success: updated person with ID %v", person.ID)
 
 	return nil
 }

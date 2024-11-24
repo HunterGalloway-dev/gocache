@@ -3,9 +3,9 @@ package controller
 import (
 	"fmt"
 	"gocache/internal/datasource"
+	"gocache/internal/logger"
 	"gocache/pkg/model"
 	"gocache/pkg/store"
-	"log"
 )
 
 // PersonController defines the interface for the person controller
@@ -39,38 +39,38 @@ func (c *personController) Health() map[string]string {
 
 // Query retrieves persons from the data source based on the provided criteria
 func (c *personController) Query(name, email string, ages []int) ([]model.Person, error) {
-	log.Printf("CONTROLLER: Query called with name=%v, email=%v, ages=%v", name, email, ages)
+	logger.Logger.Infof("CONTROLLER: Query called with name=%v, email=%v, ages=%v", name, email, ages)
 	p := c.kv.Query(name, email, ages)
-	log.Printf("CONTROLLER: Query success: found %v persons", len(p))
+	logger.Logger.Infof("CONTROLLER: Query success: found %v persons", len(p))
 	return p, nil
 }
 
 // GetAllPersons retrieves all persons from the data source
 func (c *personController) GetAllPersons() ([]model.Person, error) {
-	log.Printf("CONTROLLER: GetAllPersons called")
+	logger.Logger.Info("CONTROLLER: GetAllPersons called")
 	p := c.kv.GetAllPersons()
 
-	log.Printf("CONTROLLER: GetAllPersons success: found %v persons", len(p))
+	logger.Logger.Infof("CONTROLLER: GetAllPersons success: found %v persons", len(p))
 
 	return p, nil
 }
 
 // UpdatePerson updates a person in the data source
 func (c *personController) UpdatePerson(p model.Person) error {
-	log.Printf("CONTROLLER: UpdatePerson called with person=%v", p)
+	logger.Logger.Infof("CONTROLLER: UpdatePerson called with person=%v", p)
 	err := c.db.UpdatePerson(p)
 	if err != nil {
-		log.Printf("CONTROLLER: Error updating person: %v", err)
+		logger.Logger.Errorf("CONTROLLER: Error updating person: %v", err)
 		return err
 	}
 
 	// Update the key-value store
 	err = c.kv.UpdatePerson(p)
 	if err != nil {
-		log.Printf("CONTROLLER: Error updating key-value store: %v", err)
+		logger.Logger.Errorf("CONTROLLER: Error updating key-value store: %v", err)
 		return err
 	}
 
-	log.Printf("CONTROLLER: UpdatePerson success")
+	logger.Logger.Info("CONTROLLER: UpdatePerson success")
 	return nil
 }
