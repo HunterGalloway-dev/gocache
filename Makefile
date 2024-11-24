@@ -1,4 +1,4 @@
-.PHONY: run build test docker-run docker_down
+.PHONY: run build test docker-run docker_down watch
 
 all: build test
 
@@ -15,6 +15,9 @@ test:
 
 docker-run:
 	@docker-compose up --build
+
+watch:
+	@air -c .air.toml
 
 docker-down:
 	@docker-compose down

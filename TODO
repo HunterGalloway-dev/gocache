@@ -1,26 +1,19 @@
-define store interface based on KV Store and have KV store return the Store interface
-implement a store utilizing a redis instance
-implement a the unit tests using dynamic store interface
-improve containerization of the go application
-add air to live reload and make file 
-implement basic http server using go standard library
-implement basic crud operations on PG model for go
-implement basic endpoints on server for health and db health
-implement integration tests for server
-
-write read
-
-add tests for data base
-
-change http server timeouts to env
-
-debate psql vs mongo implementation
-
-For mass retrieval of a single type of data that doesn't have relations, MongoDB is generally a better choice. Here are some reasons why:
-
+done - define store interface based on KV Store and have KV store return the Store interface
+done - implement a the unit tests using dynamic store interface
+done - add air to live reload and make file 
+done - used chi instead, implement basic http server using go standard library
+done - all intesive purposed the app only needs get, implement basic crud operations on PG model for go
+done - combined into one, implement basic endpoints on server for health and db health
+done - add tests for data base
+done - chose mongo for faster reads, debate psql vs mongo implementation
+context for above: For mass retrieval of a single type of data that doesn't have relations, MongoDB is generally a better choice. Here are some reasons why:
 Schema-less: MongoDB is a NoSQL database, which means it doesn't require a fixed schema. This can be beneficial if your data structure might change over time.
 Performance: MongoDB is optimized for read-heavy operations and can handle large volumes of data efficiently.
 Scalability: MongoDB is designed to scale out horizontally, making it easier to handle large datasets.
 However, if you need strong consistency and ACID transactions, PostgreSQL might be more suitable. But for your use case of mass retrieval of a single type of data without relations, MongoDB is likely the better option.
+done - Added CESE logging pattern
 
-Added CESE logging pattern
+finished mongo data source unit tests, need to addd to controller and routes, implement integration tests for server
+change http server timeouts to env
+need to containerize go app - improve containerization of the go application
+implement a store utilizing a redis instance
