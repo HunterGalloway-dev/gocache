@@ -25,11 +25,10 @@ var (
 	host     = os.Getenv("DB_HOST")
 	port     = os.Getenv("DB_PORT")
 	name     = os.Getenv("DB_NAME")
-	coll     = os.Getenv("DB_COLLECTION")
+	coll     = os.Getenv("COLLECTION_NAME")
 )
 
 func NewMongo() (DataSource, error) {
-	fmt.Println(username, password, host, port)
 	uri := fmt.Sprintf("mongodb://%s:%s@%s:%s/?authSource=admin", username, password, host, port)
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(uri))
 

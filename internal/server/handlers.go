@@ -34,28 +34,26 @@ func (s *Server) getPersonsHandler(c *gin.Context) {
 }
 
 func (s *Server) queryPersonsHandler(c *gin.Context) {
-
 	name := c.Query("name")
 	email := c.Query("email")
 	ageStr := c.QueryArray("ages")
 	logger.Logger.Infof("ROUTE: queryPersonsHandler called: %v %v name=%v, email=%v, ages=%v", c.Request.Method, c.Request.URL.Path, name, email, ageStr)
-	ages, err := stringSliceToIntSlice(ageStr)
 
+	ages, err := stringSliceToIntSlice(ageStr)
 	if err != nil {
 		logger.Logger.Errorf("ROUTE: queryPersonsHandler error converting string slice to int slice: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ages parameter"})
+		return
 	}
-
-	logger.Logger.Infof("ROUTE: queryPersonsHandler called: %v %v name=%v, email=%v, ages=%v", c.Request.Method, c.Request.URL.Path, name, email, ages)
 
 	persons, err := s.pc.Query(name, email, ages)
 	if err != nil {
 		logger.Logger.Errorf("ROUTE: queryPersonsHandler error: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query persons"})
 		return
 	}
 
 	logger.Logger.Infof("ROUTE: queryPersonsHandler success: found %v persons", len(persons))
-
 	c.JSON(http.StatusOK, persons)
 }
 

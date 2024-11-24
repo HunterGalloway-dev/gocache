@@ -2,7 +2,6 @@
 
 all: build test
 
-# TODO - Add more commands here to run tests, build, etc.
 run:
 	@go run cmd/api/main.go
 

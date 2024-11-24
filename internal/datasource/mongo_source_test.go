@@ -34,6 +34,8 @@ func mustStartMongoContainer() (func(context.Context) error, error) {
 	port = dbPort.Port()
 	username = "root"
 	password = "password"
+	name = "gocache"
+	coll = "person"
 
 	return dbContainer.Terminate, nil
 }
@@ -44,14 +46,22 @@ func TestMain(m *testing.M) {
 }
 
 func TestNew(t *testing.T) {
-	mongo := NewMongo()
+	mongo, err := NewMongo()
+	if err != nil {
+		t.Fatalf("New() error: %v", err)
+	}
+
 	if mongo == nil {
 		t.Fatal("New() returned nil")
 	}
 }
 
 func TestHealth(t *testing.T) {
-	mongo := NewMongo()
+	mongo, err := NewMongo()
+	if err != nil {
+		t.Fatalf("New() error: %v", err)
+	}
+
 	health := mongo.Health()
 	if health["message"] != "It's healthy" {
 		t.Fatal("Health() returned unhealthy")
@@ -64,7 +74,10 @@ func TestGetAllPersons(t *testing.T) {
 	}
 	defer terminate(context.Background())
 
-	mongo := NewMongo()
+	mongo, err := NewMongo()
+	if err != nil {
+		t.Fatalf("New() error: %v", err)
+	}
 
 	// Insert test data
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -103,7 +116,10 @@ func TestUpdatePerson(t *testing.T) {
 	}
 	defer terminate(context.Background())
 
-	mongo := NewMongo()
+	mongo, err := NewMongo()
+	if err != nil {
+		t.Fatalf("New() error: %v", err)
+	}
 
 	// Insert test data
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

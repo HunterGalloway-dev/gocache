@@ -19,6 +19,10 @@ type Server struct {
 }
 
 func NewServer() (*http.Server, error) {
+	if err := validateEnvVars(); err != nil {
+		return nil, err
+	}
+
 	port, err := strconv.Atoi(os.Getenv("PORT"))
 	if err != nil {
 
@@ -37,18 +41,28 @@ func NewServer() (*http.Server, error) {
 		return nil, fmt.Errorf("error creating person controller: %v", err)
 	}
 
-	NewServer := &Server{
+	serverInstance := &Server{
 		port: port,
 		pc:   pc,
 	}
 
 	server := &http.Server{
 		Addr:         ":" + strconv.Itoa(port),
-		Handler:      NewServer.RegisterRoutes(),
+		Handler:      serverInstance.RegisterRoutes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
 
 	return server, nil
+}
+
+func validateEnvVars() error {
+	requiredVars := []string{"PORT", "DB_NAME", "DB_HOST", "DB_PORT", "DB_USERNAME", "DB_ROOT_PASSWORD", "COLLECTION_NAME"}
+	for _, v := range requiredVars {
+		if os.Getenv(v) == "" {
+			return fmt.Errorf("environment variable %s is not set", v)
+		}
+	}
+	return nil
 }
