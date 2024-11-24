@@ -19,7 +19,10 @@ type Server struct {
 }
 
 func NewServer() *http.Server {
-	port, _ := strconv.Atoi(os.Getenv("PORT"))
+	port, err := strconv.Atoi(os.Getenv("PORT"))
+	if err != nil {
+		log.Fatalf("Error converting PORT to integer: %v", err)
+	}
 
 	db := datasource.NewMongo()
 

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"gocache/internal/datasource"
 	"gocache/pkg/model"
 	"gocache/pkg/store"
@@ -26,18 +27,10 @@ func NewPersonController(db datasource.DataSource) (PersonController, error) {
 	kv := store.NewKVStore()
 	p, err := db.GetAllPersons()
 	if err != nil {
-		log.Printf("CONTROLLER: Error getting persons from data source: %v", err)
-		return nil, err
+		return nil, fmt.Errorf("error getting persons from data source: %w", err)
 	}
-
-	// Setup key value store with persons from the data source
-	log.Printf("CONTROLLER: Inserting persons into key-value store for caching [%v persons]", len(p))
 	kv.InsertPersons(p)
-
-	return &personController{
-		db: db,
-		kv: kv,
-	}, nil
+	return &personController{db: db, kv: kv}, nil
 }
 
 func (c *personController) Health() map[string]string {

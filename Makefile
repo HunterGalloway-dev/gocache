@@ -1,4 +1,4 @@
-.PHONY: run build test docker-run docker_down watch
+.PHONY: run build test docker-run docker_down watch lint format integration-test
 
 all: build test
 
@@ -21,3 +21,12 @@ watch:
 
 docker-down:
 	@docker-compose down
+
+lint:
+	@golangci-lint run
+
+format:
+	@gofmt -s -w .
+
+integration-test:
+	@go test -tags=integration -v ./...
