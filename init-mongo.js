@@ -1,4 +1,6 @@
+const MAX_PERSONS = 100_000;
 print("Start of init-mongo.js script");
+print("Create 'persons' collection with fake data MAX_PERSONS: " + MAX_PERSONS);
 
 print(process.env.MONGO_INITDB_DATABASE);
 print(process.env.COLLECTION_NAME)
@@ -37,7 +39,6 @@ const names = [
   "Nina Owens", "Oscar Perry", "Paula Quinn", "Quincy Roberts", "Rita Scott"
 ];
 
-const MAX_PERSONS = 100_000;
 const persons = [];
 
 for (let i = 1; i <= MAX_PERSONS; i++) {
